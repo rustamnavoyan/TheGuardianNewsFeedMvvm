@@ -1,11 +1,13 @@
 package com.rustamnavoyan.theguardiannewsfeedmvvm;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.rustamnavoyan.theguardiannewsfeedmvvm.adapters.ArticleListAdapter;
+import com.rustamnavoyan.theguardiannewsfeedmvvm.model.ArticleItem;
 import com.rustamnavoyan.theguardiannewsfeedmvvm.viewmodel.ArticlesViewModel;
 
 import androidx.annotation.NonNull;
@@ -15,7 +17,8 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class MainFragment extends Fragment {
+public class MainFragment extends Fragment implements
+        ArticleListAdapter.OnItemClickListener {
     private ArticlesViewModel mViewModel;
 
     @Override
@@ -33,7 +36,7 @@ public class MainFragment extends Fragment {
         RecyclerView recyclerView = view.findViewById(R.id.articles_recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
-        ArticleListAdapter adapter = new ArticleListAdapter();
+        ArticleListAdapter adapter = new ArticleListAdapter(this);
         recyclerView.setAdapter(adapter);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -62,5 +65,12 @@ public class MainFragment extends Fragment {
         }
 
         return view;
+    }
+
+    @Override
+    public void onItemClicked(ArticleItem article) {
+        Intent intent = new Intent(getContext(), ArticlePageActivity.class);
+        intent.putExtra(ArticlePageActivity.EXTRA_ARTICLE_ITEM, article);
+        startActivity(intent);
     }
 }

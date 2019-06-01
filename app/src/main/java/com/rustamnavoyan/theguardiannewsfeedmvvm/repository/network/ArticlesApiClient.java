@@ -14,6 +14,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
+import retrofit2.http.Url;
 
 public class ArticlesApiClient {
     interface ArticlesService {
@@ -22,6 +23,12 @@ public class ArticlesApiClient {
         Call<PageResponse> getArticleList(@Query("api-key") String apiKey,
                                           @Query("show-fields") String showFields,
                                           @Query("page") int page, @Query("page-size") int pageSize);
+
+        @GET
+        Call<PageResponse> getArticle(@Url String url,
+                                      @Query("api-key") String apiKey,
+                                      @Query("page-size") int pageSize,
+                                      @Query("show-fields") String showFields);
     }
 
     private static class ServiceGenerator {
@@ -91,6 +98,22 @@ public class ArticlesApiClient {
             @Override
             public void onResponse(@NonNull Call<PageResponse> call, @NonNull Response<PageResponse> response) {
                 callback.onResponse(response.body());
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<PageResponse> call, Throwable t) {
+            }
+        });
+    }
+
+    public void getArticleContents(String apiUrl, ResponseCallback callback) {
+        mServiceGenerator.createService()
+                .getArticle(apiUrl, API_KEY, 1, "bodyText").enqueue(new Callback<PageResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<PageResponse> call, @NonNull Response<PageResponse> response) {
+                if (callback != null) {
+                    callback.onResponse(response.body());
+                }
             }
 
             @Override

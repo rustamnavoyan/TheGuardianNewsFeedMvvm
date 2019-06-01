@@ -19,6 +19,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.ArticleViewHolder> {
 
+    public interface OnItemClickListener {
+        void onItemClicked(ArticleItem article);
+    }
+
     static class ArticleViewHolder extends RecyclerView.ViewHolder {
         private ListItemArticleBinding mBinding;
 
@@ -30,6 +34,11 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
     }
 
     private List<ArticleItem> mArticleItemList = new ArrayList<>();
+    private OnItemClickListener mItemClickListener;
+
+    public ArticleListAdapter(OnItemClickListener itemClickListener) {
+        mItemClickListener = itemClickListener;
+    }
 
     public void setArticleList(List<ArticleItem> articleItemList) {
         mArticleItemList = articleItemList;
@@ -42,7 +51,10 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         ListItemArticleBinding binding =
                 DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()),
                         R.layout.list_item_article, parent, false);
-        return new ArticleViewHolder(binding);
+        ArticleViewHolder holder = new ArticleViewHolder(binding);
+        binding.getRoot().setOnClickListener(view ->
+                mItemClickListener.onItemClicked(mArticleItemList.get(holder.getAdapterPosition())));
+        return holder;
     }
 
     @Override

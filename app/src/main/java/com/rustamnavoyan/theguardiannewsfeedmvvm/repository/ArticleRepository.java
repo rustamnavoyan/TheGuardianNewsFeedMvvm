@@ -13,6 +13,10 @@ public class ArticleRepository {
         void onDownloaded(List<ArticleItem> articleItems);
     }
 
+    public interface OnContentDownloadCallback {
+        void onDownloaded(Result result);
+    }
+
     private static final int PAGE_SIZE = 10;
 
     public void downloadArticleList(int page, OnDownloadCallback callback) {
@@ -28,10 +32,16 @@ public class ArticleRepository {
                 if (result.getFields() != null) {
                     articleItem.setThumbnailUrl(result.getFields().getThumbnail());
                 }
+                articleItem.setApiUrl(result.getApiUrl());
                 articleItems.add(articleItem);
             }
 
             callback.onDownloaded(articleItems);
         });
+    }
+
+    public void downloadArticleContent(String url, OnContentDownloadCallback callback) {
+        new ArticlesApiClient().getArticleContents(url, response ->
+                callback.onDownloaded(response.getResponse().getContent()));
     }
 }
