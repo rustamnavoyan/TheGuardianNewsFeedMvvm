@@ -18,5 +18,9 @@ public class Article {
 
     public String apiUrl;
 
+    public String bodyText;
+
     public boolean pinned;
+
+    public boolean saved;
 }

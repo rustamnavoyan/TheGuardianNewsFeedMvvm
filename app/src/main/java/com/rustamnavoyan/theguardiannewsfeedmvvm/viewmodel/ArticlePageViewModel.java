@@ -53,16 +53,19 @@ public class ArticlePageViewModel extends AndroidViewModel {
         });
     }
 
-    public void updatePinnedState(ArticleItem articleItem) {
-        Article article = new Article();
-        article.id = articleItem.getId();
-        article.thumbnailUrl = articleItem.getThumbnailUrl();
-        article.title = articleItem.getTitle();
-        article.category = articleItem.getCategory();
-        article.apiUrl = articleItem.getApiUrl();
-        article.pinned = articleItem.isPinned();
+    public void saveArticle(com.rustamnavoyan.theguardiannewsfeedmvvm.model.Article article) {
+        ArticleItem articleItem = article.getArticleItem();
+        Article articleTable = new Article();
+        articleTable.id = articleItem.getId();
+        articleTable.thumbnailUrl = articleItem.getThumbnailUrl();
+        articleTable.title = articleItem.getTitle();
+        articleTable.category = articleItem.getCategory();
+        articleTable.apiUrl = articleItem.getApiUrl();
+        articleTable.bodyText = article.getArticleBodyText();
+        articleTable.pinned = articleItem.isPinned();
+        articleTable.saved = article.isSaved();
 
-        mArticleRepository.updatePinnedState(article);
+        mArticleRepository.saveArticle(articleTable);
     }
 
     public void loadArticle(String id) {

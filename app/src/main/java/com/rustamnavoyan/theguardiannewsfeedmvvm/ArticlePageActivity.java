@@ -5,6 +5,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.rustamnavoyan.theguardiannewsfeedmvvm.databinding.ActivityArticlePageBinding;
+import com.rustamnavoyan.theguardiannewsfeedmvvm.model.Article;
 import com.rustamnavoyan.theguardiannewsfeedmvvm.model.ArticleItem;
 import com.rustamnavoyan.theguardiannewsfeedmvvm.viewmodel.ArticlePageViewModel;
 
@@ -15,7 +16,7 @@ import androidx.lifecycle.ViewModelProviders;
 public class ArticlePageActivity extends AppCompatActivity {
     public static final String EXTRA_ARTICLE_ITEM = "com.rustamnavoyan.theguardiannewsfeed.ARTICLE_ITEM";
 
-    private ArticleItem mArticleItem;
+    private Article mArticle;
     private ArticlePageViewModel mViewModel;
 
     @Override
@@ -23,20 +24,29 @@ public class ArticlePageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         mViewModel = ViewModelProviders.of(this).get(ArticlePageViewModel.class);
-        mArticleItem = getIntent().getParcelableExtra(EXTRA_ARTICLE_ITEM);
+        ArticleItem articleItem = getIntent().getParcelableExtra(EXTRA_ARTICLE_ITEM);
+        mArticle = new Article();
+        mArticle.setArticleItem(articleItem);
 
         ActivityArticlePageBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_article_page);
-        binding.setImageUrl(mArticleItem.getThumbnailUrl());
-        binding.setTitle(mArticleItem.getTitle());
+        binding.setImageUrl(articleItem.getThumbnailUrl());
+        binding.setTitle(articleItem.getTitle());
         binding.setLifecycleOwner(this);
         binding.setPageViewModel(mViewModel);
 
-        mViewModel.downloadArticleContent(mArticleItem.getApiUrl());
-        mViewModel.loadArticle(mArticleItem.getId());
+        if (savedInstanceState == null) {
+            mViewModel.downloadArticleContent(articleItem.getApiUrl());
+            mViewModel.loadArticle(articleItem.getId());
+        }
         mViewModel.getArticle().observe(this, article -> {
             if (article != null) {
-                mArticleItem.setPinned(article.pinned);
+                articleItem.setPinned(article.pinned);
+                mArticle.setSaved(article.saved);
             }
+            invalidateOptionsMenu();
+        });
+        mViewModel.getContent().observe(this, text -> {
+            mArticle.setArticleBodyText(text);
             invalidateOptionsMenu();
         });
 
@@ -54,6 +64,11 @@ public class ArticlePageActivity extends AppCompatActivity {
             case R.id.pin:
                 togglePin();
                 return true;
+
+            case R.id.save:
+                toggleSave();
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -61,13 +76,20 @@ public class ArticlePageActivity extends AppCompatActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.pin).setTitle(mArticleItem.isPinned() ? R.string.unpin : R.string.pin);
+        menu.findItem(R.id.pin).setTitle(mArticle.getArticleItem().isPinned() ? R.string.unpin : R.string.pin);
+        menu.findItem(R.id.save).setEnabled(mArticle.getArticleBodyText() != null);
+        menu.findItem(R.id.save).setTitle(mArticle != null && mArticle.isSaved() ? R.string.delete : R.string.save);
 
         return true;
     }
 
     private void togglePin() {
-        mArticleItem.setPinned(!mArticleItem.isPinned());
-        mViewModel.updatePinnedState(mArticleItem);
+        mArticle.getArticleItem().setPinned(!mArticle.getArticleItem().isPinned());
+        mViewModel.saveArticle(mArticle);
+    }
+
+    private void toggleSave() {
+        mArticle.setSaved(!mArticle.isSaved());
+        mViewModel.saveArticle(mArticle);
     }
 }

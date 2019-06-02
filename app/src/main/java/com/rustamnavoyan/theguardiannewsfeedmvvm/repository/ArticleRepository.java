@@ -64,21 +64,21 @@ public class ArticleRepository {
         return mDatabase.getArticleDao().getArticle(articleId);
     }
 
-    public void updatePinnedState(Article article) {
-        new PinnedArticleSaver(mDatabase).execute(article);
+    public void saveArticle(Article article) {
+        new ArticleSaver(mDatabase).execute(article);
     }
 
-    private static class PinnedArticleSaver extends AsyncTask<Article, Void, Void> {
+    private static class ArticleSaver extends AsyncTask<Article, Void, Void> {
         private ArticleDatabase mDatabase;
 
-        public PinnedArticleSaver(ArticleDatabase database) {
+        public ArticleSaver(ArticleDatabase database) {
             mDatabase = database;
         }
 
         @Override
         protected Void doInBackground(Article... articles) {
             Article savingArticle = articles[0];
-            if (savingArticle.pinned) {
+            if (savingArticle.pinned || savingArticle.saved) {
                 mDatabase.getArticleDao().insertArticle(articles[0]);
             } else {
                 mDatabase.getArticleDao().deleteArticle(articles[0]);
