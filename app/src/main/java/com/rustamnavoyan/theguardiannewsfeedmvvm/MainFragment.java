@@ -62,6 +62,7 @@ public class MainFragment extends Fragment implements
 
                 // start loading articles if there are 2 items to reach the last loaded item
                 if (totalItemCount <= (lastVisibleItem + 2)) {
+                    adapter.setLoading();
                     mViewModel.downloadArticles();
                 }
             }
