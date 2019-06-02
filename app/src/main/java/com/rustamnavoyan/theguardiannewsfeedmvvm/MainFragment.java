@@ -1,6 +1,10 @@
 package com.rustamnavoyan.theguardiannewsfeedmvvm;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +29,24 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class MainFragment extends Fragment implements
         ArticleListAdapter.OnItemClickListener {
+
+    private static final String STATE_CONNECTED = "state_connected";
+
     private ArticlesViewModel mViewModel;
+    private boolean mConnected;
+
+    private BroadcastReceiver mConnectivityReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            boolean connected = ConnectionUtil.isConnected(context);
+            if (mConnected != connected) {
+                mConnected = connected;
+                if (getActivity() != null) {
+                    getActivity().recreate();
+                }
+            }
+        }
+    };
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,7 +70,12 @@ public class MainFragment extends Fragment implements
         recyclerView.setLayoutManager(layoutManager);
         ArticleListAdapter adapter = new ArticleListAdapter(false, this);
         recyclerView.setAdapter(adapter);
-        if (ConnectionUtil.isConnected(getContext())) {
+        if (savedInstanceState != null) {
+            mConnected = savedInstanceState.getBoolean(STATE_CONNECTED);
+        } else {
+            mConnected = ConnectionUtil.isConnected(getContext());
+        }
+        if (mConnected) {
             recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
                 public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
@@ -100,8 +126,17 @@ public class MainFragment extends Fragment implements
     }
 
     @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putBoolean(STATE_CONNECTED, mConnected);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
+
+        getContext().registerReceiver(mConnectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
         PeriodicDownloadManager.cancel();
     }
@@ -109,6 +144,8 @@ public class MainFragment extends Fragment implements
     @Override
     public void onPause() {
         super.onPause();
+
+        getContext().unregisterReceiver(mConnectivityReceiver);
 
         PeriodicDownloadManager.schedule();
     }

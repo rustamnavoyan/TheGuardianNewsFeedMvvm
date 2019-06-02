@@ -33,7 +33,7 @@ public class ArticlesViewModel extends AndroidViewModel {
         mPinnedArticleItems = mArticleRepository.loadPinnedArticles();
     }
 
-    public LiveData<List<ArticleItem>> getArticleItems() {
+    public MutableLiveData<List<ArticleItem>> getArticleItems() {
         return mArticleItems;
     }
 
