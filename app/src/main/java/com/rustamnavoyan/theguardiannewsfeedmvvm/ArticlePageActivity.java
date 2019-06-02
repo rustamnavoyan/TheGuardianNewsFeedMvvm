@@ -5,6 +5,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.rustamnavoyan.theguardiannewsfeedmvvm.databinding.ActivityArticlePageBinding;
+import com.rustamnavoyan.theguardiannewsfeedmvvm.manage.PeriodicDownloadManager;
 import com.rustamnavoyan.theguardiannewsfeedmvvm.model.Article;
 import com.rustamnavoyan.theguardiannewsfeedmvvm.model.ArticleItem;
 import com.rustamnavoyan.theguardiannewsfeedmvvm.util.ConnectionUtil;
@@ -58,6 +59,20 @@ public class ArticlePageActivity extends AppCompatActivity {
             invalidateOptionsMenu();
         });
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        PeriodicDownloadManager.cancel();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        PeriodicDownloadManager.schedule();
     }
 
     @Override

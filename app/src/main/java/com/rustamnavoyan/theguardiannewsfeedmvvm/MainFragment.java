@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.rustamnavoyan.theguardiannewsfeedmvvm.adapters.ArticleListAdapter;
+import com.rustamnavoyan.theguardiannewsfeedmvvm.manage.PeriodicDownloadManager;
 import com.rustamnavoyan.theguardiannewsfeedmvvm.model.ArticleItem;
 import com.rustamnavoyan.theguardiannewsfeedmvvm.repository.db.Article;
 import com.rustamnavoyan.theguardiannewsfeedmvvm.util.ConnectionUtil;
@@ -96,6 +97,20 @@ public class MainFragment extends Fragment implements
         });
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        PeriodicDownloadManager.cancel();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        PeriodicDownloadManager.schedule();
     }
 
     private static List<ArticleItem> convert(List<Article> articles) {

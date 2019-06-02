@@ -10,6 +10,7 @@ public class ArticleItem implements Parcelable {
     private String mCategory;
     private String mApiUrl;
     private boolean mPinned;
+    private String mPublishedDate;
 
     public ArticleItem(String id) {
         mId = id;
@@ -22,6 +23,7 @@ public class ArticleItem implements Parcelable {
         mCategory = in.readString();
         mApiUrl = in.readString();
         mPinned = in.readByte() != 0;
+        mPublishedDate = in.readString();
     }
 
     public static final Creator<ArticleItem> CREATOR = new Creator<ArticleItem>() {
@@ -49,6 +51,7 @@ public class ArticleItem implements Parcelable {
         parcel.writeString(mCategory);
         parcel.writeString(mApiUrl);
         parcel.writeByte((byte) (mPinned ? 1 : 0));
+        parcel.writeString(mPublishedDate);
     }
 
     public String getId() {
@@ -97,5 +100,13 @@ public class ArticleItem implements Parcelable {
 
     public void setPinned(boolean pinned) {
         mPinned = pinned;
+    }
+
+    public String getPublishedDate() {
+        return mPublishedDate;
+    }
+
+    public void setPublishedDate(String publishedDate) {
+        mPublishedDate = publishedDate;
     }
 }

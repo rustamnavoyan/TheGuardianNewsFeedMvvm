@@ -26,13 +26,20 @@ public class ArticleRepository {
     private static final int PAGE_SIZE = 10;
     private ArticleDatabase mDatabase;
 
+    public ArticleRepository() {
+    }
+
     public ArticleRepository(Context context) {
         mDatabase = ArticleDatabase.getDatabase(context);
     }
 
     public void downloadArticleList(int page, OnDownloadCallback callback) {
+        downloadArticleList(page, PAGE_SIZE, callback);
+    }
+
+    public void downloadArticleList(int page, int pageSize, OnDownloadCallback callback) {
         ArticlesApiClient articlesApiClient = new ArticlesApiClient();
-        articlesApiClient.getArticleList(page, PAGE_SIZE, response -> {
+        articlesApiClient.getArticleList(page, pageSize, response -> {
             List<Result> results = response.getResponse().getResults();
             List<ArticleItem> articleItems = new ArrayList<>();
             for (Result result : results) {
@@ -44,6 +51,7 @@ public class ArticleRepository {
                     articleItem.setThumbnailUrl(result.getFields().getThumbnail());
                 }
                 articleItem.setApiUrl(result.getApiUrl());
+                articleItem.setPublishedDate(result.getWebPublicationDate());
                 articleItems.add(articleItem);
             }
 
