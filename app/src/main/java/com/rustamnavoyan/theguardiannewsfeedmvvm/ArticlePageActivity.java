@@ -7,6 +7,7 @@ import android.view.MenuItem;
 import com.rustamnavoyan.theguardiannewsfeedmvvm.databinding.ActivityArticlePageBinding;
 import com.rustamnavoyan.theguardiannewsfeedmvvm.model.Article;
 import com.rustamnavoyan.theguardiannewsfeedmvvm.model.ArticleItem;
+import com.rustamnavoyan.theguardiannewsfeedmvvm.util.ConnectionUtil;
 import com.rustamnavoyan.theguardiannewsfeedmvvm.viewmodel.ArticlePageViewModel;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,12 +35,19 @@ public class ArticlePageActivity extends AppCompatActivity {
         binding.setLifecycleOwner(this);
         binding.setPageViewModel(mViewModel);
 
+        boolean connected = ConnectionUtil.isConnected(this);
         if (savedInstanceState == null) {
-            mViewModel.downloadArticleContent(articleItem.getApiUrl());
+            if (connected) {
+                mViewModel.downloadArticleContent(articleItem.getApiUrl());
+            }
             mViewModel.loadArticle(articleItem.getId());
         }
         mViewModel.getArticle().observe(this, article -> {
             if (article != null) {
+                if (!connected) {
+                    mViewModel.getHideProgress().setValue(true);
+                    mViewModel.getContent().setValue(article.bodyText);
+                }
                 articleItem.setPinned(article.pinned);
                 mArticle.setSaved(article.saved);
             }
