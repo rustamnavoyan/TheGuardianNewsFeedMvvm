@@ -22,6 +22,8 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -166,9 +168,11 @@ public class MainFragment extends Fragment implements
     }
 
     @Override
-    public void onItemClicked(ArticleItem article) {
+    public void onItemClicked(View view, ArticleItem article) {
         Intent intent = new Intent(getContext(), ArticlePageActivity.class);
         intent.putExtra(ArticlePageActivity.EXTRA_ARTICLE_ITEM, article);
-        startActivity(intent);
+        ActivityOptionsCompat options = ActivityOptionsCompat.
+                makeSceneTransitionAnimation(getActivity(), view, ArticlePageActivity.IMAGE_TRANSITION_NAME);
+        ActivityCompat.startActivity(getActivity(), intent, options.toBundle());
     }
 }

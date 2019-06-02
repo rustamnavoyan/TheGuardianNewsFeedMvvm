@@ -12,6 +12,7 @@ import com.rustamnavoyan.theguardiannewsfeedmvvm.util.ConnectionUtil;
 import com.rustamnavoyan.theguardiannewsfeedmvvm.viewmodel.ArticlePageViewModel;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -20,6 +21,8 @@ public class ArticlePageActivity extends AppCompatActivity {
 
     private Article mArticle;
     private ArticlePageViewModel mViewModel;
+
+    public static final String IMAGE_TRANSITION_NAME = "image_transition_name";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +38,7 @@ public class ArticlePageActivity extends AppCompatActivity {
         binding.setTitle(articleItem.getTitle());
         binding.setLifecycleOwner(this);
         binding.setPageViewModel(mViewModel);
+        ViewCompat.setTransitionName(binding.articleImage, IMAGE_TRANSITION_NAME);
 
         boolean connected = ConnectionUtil.isConnected(this);
         if (savedInstanceState == null) {

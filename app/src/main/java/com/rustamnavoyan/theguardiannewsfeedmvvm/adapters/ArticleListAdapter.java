@@ -23,7 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.AbstractViewHolder> {
 
     public interface OnItemClickListener {
-        void onItemClicked(ArticleItem article);
+        void onItemClicked(View view, ArticleItem article);
     }
 
     static abstract class AbstractViewHolder extends RecyclerView.ViewHolder {
@@ -109,7 +109,8 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
                 layoutParams.width = (int) (mScreenWidth * 0.8);
             }
             binding.getRoot().setOnClickListener(view ->
-                    mItemClickListener.onItemClicked(mArticleItemList.get(holder.getAdapterPosition())));
+                    mItemClickListener.onItemClicked(binding.thumbnail, mArticleItemList.get(
+                            holder.getAdapterPosition())));
             return holder;
         }
 
