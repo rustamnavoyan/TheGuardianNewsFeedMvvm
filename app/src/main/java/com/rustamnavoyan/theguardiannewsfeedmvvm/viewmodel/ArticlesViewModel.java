@@ -1,23 +1,39 @@
 package com.rustamnavoyan.theguardiannewsfeedmvvm.viewmodel;
 
+import android.app.Application;
+
 import com.rustamnavoyan.theguardiannewsfeedmvvm.model.ArticleItem;
 import com.rustamnavoyan.theguardiannewsfeedmvvm.repository.ArticleRepository;
+import com.rustamnavoyan.theguardiannewsfeedmvvm.repository.db.Article;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
-public class ArticlesViewModel extends ViewModel {
-    private ArticleRepository mArticleRepository = new ArticleRepository();
+public class ArticlesViewModel extends AndroidViewModel {
+    private ArticleRepository mArticleRepository;
 
     private int mPage;
     private MutableLiveData<List<ArticleItem>> mArticleItems = new MutableLiveData<>();
+    private LiveData<List<Article>> mPinnedArticleItems;
+
+    public ArticlesViewModel(@NonNull Application application) {
+        super(application);
+
+        mArticleRepository = new ArticleRepository(application);
+        mPinnedArticleItems = mArticleRepository.loadPinnedArticles();
+    }
 
     public LiveData<List<ArticleItem>> getArticleItems() {
         return mArticleItems;
+    }
+
+    public LiveData<List<Article>> getPinnedArticleItems() {
+        return mPinnedArticleItems;
     }
 
     public void downloadArticles() {

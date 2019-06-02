@@ -8,7 +8,11 @@ import android.view.ViewGroup;
 
 import com.rustamnavoyan.theguardiannewsfeedmvvm.adapters.ArticleListAdapter;
 import com.rustamnavoyan.theguardiannewsfeedmvvm.model.ArticleItem;
+import com.rustamnavoyan.theguardiannewsfeedmvvm.repository.db.Article;
 import com.rustamnavoyan.theguardiannewsfeedmvvm.viewmodel.ArticlesViewModel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,10 +37,15 @@ public class MainFragment extends Fragment implements
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
 
+        RecyclerView pinnedRecyclerView = view.findViewById(R.id.pinned_articles_recycler_view);
+        pinnedRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false));
+        ArticleListAdapter pinnedAdapter = new ArticleListAdapter(true, this);
+        pinnedRecyclerView.setAdapter(pinnedAdapter);
+
         RecyclerView recyclerView = view.findViewById(R.id.articles_recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
-        ArticleListAdapter adapter = new ArticleListAdapter(this);
+        ArticleListAdapter adapter = new ArticleListAdapter(false, this);
         recyclerView.setAdapter(adapter);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -59,12 +68,35 @@ public class MainFragment extends Fragment implements
         });
 
         mViewModel.getArticleItems().observe(this, adapter::setArticleList);
-
         if (savedInstanceState == null) {
             mViewModel.downloadArticles();
         }
+        mViewModel.getPinnedArticleItems().observe(this, articleItems -> {
+            if (articleItems != null && !articleItems.isEmpty()) {
+                pinnedRecyclerView.setVisibility(View.VISIBLE);
+                pinnedAdapter.setArticleList(convert(articleItems));
+            } else {
+                pinnedRecyclerView.setVisibility(View.GONE);
+                pinnedAdapter.clearArticles();
+            }
+        });
 
         return view;
+    }
+
+    private static List<ArticleItem> convert(List<Article> articles) {
+        List<ArticleItem> articleItems = new ArrayList<>();
+        for (Article article : articles) {
+            ArticleItem articleItem = new ArticleItem(article.id);
+            articleItem.setThumbnailUrl(article.thumbnailUrl);
+            articleItem.setTitle(article.title);
+            articleItem.setCategory(article.category);
+            articleItem.setApiUrl(article.apiUrl);
+            articleItem.setPinned(article.pinned);
+            articleItems.add(articleItem);
+        }
+
+        return articleItems;
     }
 
     @Override
