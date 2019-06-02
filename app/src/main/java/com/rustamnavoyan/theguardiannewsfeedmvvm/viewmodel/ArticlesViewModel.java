@@ -19,17 +19,23 @@ public class ArticlesViewModel extends AndroidViewModel {
 
     private int mPage;
     private MutableLiveData<List<ArticleItem>> mArticleItems = new MutableLiveData<>();
+    private LiveData<List<Article>> mSavedArticleItems;
     private LiveData<List<Article>> mPinnedArticleItems;
 
     public ArticlesViewModel(@NonNull Application application) {
         super(application);
 
         mArticleRepository = new ArticleRepository(application);
+        mSavedArticleItems = mArticleRepository.loadSavedArticles();
         mPinnedArticleItems = mArticleRepository.loadPinnedArticles();
     }
 
     public LiveData<List<ArticleItem>> getArticleItems() {
         return mArticleItems;
+    }
+
+    public LiveData<List<Article>> getSavedArticleItems() {
+        return mSavedArticleItems;
     }
 
     public LiveData<List<Article>> getPinnedArticleItems() {
@@ -46,5 +52,10 @@ public class ArticlesViewModel extends AndroidViewModel {
             items.addAll(articles);
             mArticleItems.setValue(items);
         });
+    }
+
+    public void loadSavedArticles() {
+        mPage++;
+        mArticleRepository.loadSavedArticles();
     }
 }

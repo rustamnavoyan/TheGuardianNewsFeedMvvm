@@ -56,6 +56,10 @@ public class ArticleRepository {
                 callback.onDownloaded(response.getResponse().getContent()));
     }
 
+    public LiveData<List<Article>> loadSavedArticles() {
+        return mDatabase.getArticleDao().loadSavedArticles();
+    }
+
     public LiveData<List<Article>> loadPinnedArticles() {
         return mDatabase.getArticleDao().loadPinnedArticles();
     }

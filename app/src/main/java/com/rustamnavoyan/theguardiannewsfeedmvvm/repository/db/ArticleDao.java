@@ -16,6 +16,9 @@ public interface ArticleDao {
     @Query("SELECT * FROM article WHERE pinned == 1")
     LiveData<List<Article>> loadPinnedArticles();
 
+    @Query("SELECT * FROM article WHERE saved == 1")
+    LiveData<List<Article>> loadSavedArticles();
+
     @Query("SELECT * FROM article WHERE id=:id LIMIT 1")
     LiveData<Article> getArticle(String id);
 

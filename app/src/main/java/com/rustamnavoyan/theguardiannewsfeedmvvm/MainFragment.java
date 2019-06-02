@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import com.rustamnavoyan.theguardiannewsfeedmvvm.adapters.ArticleListAdapter;
 import com.rustamnavoyan.theguardiannewsfeedmvvm.model.ArticleItem;
 import com.rustamnavoyan.theguardiannewsfeedmvvm.repository.db.Article;
+import com.rustamnavoyan.theguardiannewsfeedmvvm.util.ConnectionUtil;
 import com.rustamnavoyan.theguardiannewsfeedmvvm.viewmodel.ArticlesViewModel;
 
 import java.util.ArrayList;
@@ -47,30 +48,42 @@ public class MainFragment extends Fragment implements
         recyclerView.setLayoutManager(layoutManager);
         ArticleListAdapter adapter = new ArticleListAdapter(false, this);
         recyclerView.setAdapter(adapter);
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-            }
-
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-
-                int totalItemCount = layoutManager.getItemCount();
-                int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
-
-                // start loading articles if there are 2 items to reach the last loaded item
-                if (totalItemCount <= (lastVisibleItem + 2)) {
-                    adapter.setLoading();
-                    mViewModel.downloadArticles();
+        if (ConnectionUtil.isConnected(getContext())) {
+            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
                 }
-            }
-        });
 
-        mViewModel.getArticleItems().observe(this, adapter::setArticleList);
-        if (savedInstanceState == null) {
-            mViewModel.downloadArticles();
+                @Override
+                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+
+                    int totalItemCount = layoutManager.getItemCount();
+                    int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+
+                    // start loading articles if there are 2 items to reach the last loaded item
+                    if (totalItemCount <= (lastVisibleItem + 2)) {
+                        adapter.setLoading();
+                        mViewModel.downloadArticles();
+                    }
+                }
+            });
+            mViewModel.getArticleItems().observe(this, adapter::setArticleList);
+            if (savedInstanceState == null) {
+                mViewModel.downloadArticles();
+            }
+        } else {
+            mViewModel.getSavedArticleItems().observe(this, articleItems -> {
+                if (articleItems != null && !articleItems.isEmpty()) {
+                    adapter.setArticleList(convert(articleItems));
+                } else {
+                    adapter.clearArticles();
+                }
+            });
+            if (savedInstanceState == null) {
+                mViewModel.downloadArticles();
+            }
         }
         mViewModel.getPinnedArticleItems().observe(this, articleItems -> {
             if (articleItems != null && !articleItems.isEmpty()) {
