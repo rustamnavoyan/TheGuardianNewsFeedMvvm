@@ -37,6 +37,8 @@ public class MainFragment extends Fragment implements
     private ArticlesViewModel mViewModel;
     private boolean mConnected;
 
+    private String str = "str";
+
     private BroadcastReceiver mConnectivityReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
