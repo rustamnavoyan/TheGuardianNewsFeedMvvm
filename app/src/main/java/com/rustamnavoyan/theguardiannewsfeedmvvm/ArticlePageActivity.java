@@ -24,6 +24,8 @@ public class ArticlePageActivity extends AppCompatActivity {
 
     public static final String IMAGE_TRANSITION_NAME = "image_transition_name";
 
+    private int a = 10;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
